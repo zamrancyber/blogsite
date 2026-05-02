@@ -22,8 +22,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'whitenoise.runserver_nostatic',   # <-- add before django.contrib.staticfiles
     'django.contrib.staticfiles',
-    'blog',
-    'cloudinary',        # if using Cloudinary for media
+    'blog',       # if using Cloudinary for media
 ]
 
 MIDDLEWARE = [
