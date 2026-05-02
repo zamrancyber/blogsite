@@ -5,6 +5,23 @@ from django.core.validators import MinLengthValidator
 from django.urls import reverse
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.core.validators import FileExtensionValidator
+
+# Then in your Post model:
+image = models.ImageField(
+    upload_to='post_images/',
+    blank=True,
+    null=True,
+    validators=[FileExtensionValidator(allowed_extensions=['jpg', 'jpeg', 'png', 'gif', 'bmp', 'tiff', 'webp', 'heic', 'heif'])]
+)
+
+# In your Profile model:
+avatar = models.ImageField(
+    upload_to='avatars/',
+    blank=True,
+    null=True,
+    validators=[FileExtensionValidator(allowed_extensions=['jpg', 'jpeg', 'png', 'gif', 'bmp', 'tiff', 'webp', 'heic', 'heif'])]
+)
 
 class Post(models.Model):
     STATUS_CHOICES = (

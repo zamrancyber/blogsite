@@ -1,6 +1,10 @@
 import os
 import dj_database_url
 from pathlib import Path
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
+from cloudinary_storage.storage import MediaCloudinaryStorage
 
 # Build paths
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -23,6 +27,8 @@ INSTALLED_APPS = [
     'whitenoise.runserver_nostatic',   # <-- add before django.contrib.staticfiles
     'django.contrib.staticfiles',
     'blog',       # if using Cloudinary for media
+    'cloudinary',
+    'cloudinary_storage',
 ]
 
 MIDDLEWARE = [
@@ -102,3 +108,10 @@ LOGOUT_REDIRECT_URL = 'blog-home'
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME'),
+    'API_KEY': os.environ.get('CLOUDINARY_API_KEY'),
+    'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET'),
+}
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
