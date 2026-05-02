@@ -182,3 +182,34 @@ def edit_profile(request):
     else:
         form = ProfileForm(instance=profile)
     return render(request, 'blog/edit_profile.html', {'form': form})
+
+
+
+from django.http import JsonResponse
+from django.db import connections
+from django.db.utils import OperationalError
+
+def health_check(request):
+    """
+    Health check endpoint for monitoring.
+    Returns 200 if the application and database are running.
+    """
+    health_status = {
+        "status": "ok",
+        "database": "ok"
+    }
+    status_code = 200
+
+    # Check database connectivity
+    try:
+        connections['default'].cursor()
+    except OperationalError:
+        health_status["status"] = "error"
+        health_status["database"] = "disconnected"
+        status_code = 500
+    except Exception:
+        health_status["status"] = "error"
+        health_status["database"] = "error"
+        status_code = 500
+
+    return JsonResponse(health_status, status=status_code)
