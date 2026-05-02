@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ post.title }} | MyBlog</title>
+
+    <!-- Premium font pairing -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400..700&family=Playfair+Display:ital,wght@0,500..800;1,500..800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg: #0a0b0f;
+            --bg-secondary: #13161d;
+            --surface: #1a1d27;
+            --surface-hover: #222736;
+            --border: rgba(255, 255, 255, 0.06);
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --accent: #d4af37;
+            --accent-light: #f3d779;
+            --gradient: linear-gradient(135deg, #d4af37 0%, #b8962e 100%);
+            --danger: #ef4444;
+            --blue-accent: #3b82f6;
+            --radius: 24px;
+            --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text-primary);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            background-image:
+                radial-gradient(ellipse 80% 50% at 50% -10%, rgba(212, 175, 55, 0.08), transparent),
+                radial-gradient(ellipse 40% 70% at 90% 80%, rgba(59, 130, 246, 0.04), transparent);
+            background-attachment: fixed;
+        }
+
+        h1, h2, h3, h4, h5 {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-weight: 700;
+        }
+
+        .container { max-width: 800px; margin: 0 auto; padding: 0 1.5rem; }
+
+        /* Glass Navigation */
+        .navbar {
+            background: rgba(10, 11, 15, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            padding: 0.75rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .nav-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .logo a {
+            font-size: 1.85rem;
+            font-weight: 800;
+            font-family: 'Playfair Display', serif;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        .logo a::before {
+            content: "✦";
+            font-size: 1.4rem;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .nav-links {
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .nav-links a,
+        .nav-links button {
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+            padding: 0.55rem 1.3rem;
+            border-radius: 100px;
+            transition: var(--transition);
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            color: var(--text-secondary);
+            white-space: nowrap;
+        }
+        .nav-links a:hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.05);
+        }
+        .btn-primary {
+            background: var(--gradient) !important;
+            color: #0a0b0f !important;
+            font-weight: 600 !important;
+            box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+            border: none !important;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(212, 175, 55, 0.4);
+            filter: brightness(1.05);
+        }
+        .btn-outline {
+            border: 1px solid rgba(255, 255, 255, 0.15) !important;
+            background: transparent !important;
+            color: var(--text-secondary) !important;
+        }
+        .btn-outline:hover {
+            background: rgba(255, 255, 255, 0.05) !important;
+            border-color: var(--accent) !important;
+            color: var(--accent) !important;
+        }
+
+        /* Post content card */
+        .post-card {
+            background: var(--surface);
+            border-radius: var(--radius);
+            padding: 2.5rem 2.2rem;
+            margin: 2rem 0;
+            box-shadow: 0 20px 30px -10px rgba(0,0,0,0.4);
+            border: 1px solid var(--border);
+            backdrop-filter: blur(4px);
+        }
+        .post-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(to right, #fff, var(--accent-light));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+        .post-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            border-left: 3px solid var(--accent);
+            padding-left: 1rem;
+        }
+        .post-meta a {
+            color: var(--accent-light);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .post-meta a:hover {
+            text-decoration: underline;
+        }
+
+        .post-detail-image {
+            width: 100%;
+            max-height: 500px;
+            object-fit: cover;
+            border-radius: 20px;
+            margin: 1.5rem 0;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            border: 1px solid var(--border);
+        }
+
+        .post-content {
+            font-size: 1.1rem;
+            line-height: 1.75;
+            color: #e2e8f0;
+            margin: 2rem 0;
+        }
+        .post-content p {
+            margin-bottom: 1.4rem;
+        }
+
+        /* Post stats (likes & comments) */
+        .post-stats {
+            display: flex;
+            gap: 1.5rem;
+            margin: 1.5rem 0 0.5rem;
+            padding: 0.75rem 0 0.5rem;
+            border-top: 1px solid var(--border);
+            align-items: center;
+        }
+        .like-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            text-decoration: none;
+            font-size: 1rem;
+            font-weight: 500;
+            color: #f87171;
+            transition: transform 0.2s;
+        }
+        .like-btn:hover {
+            transform: scale(1.05);
+            color: #ff7b7b;
+        }
+        .stats-comment {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.8rem;
+            margin: 1rem 0 0.5rem;
+            flex-wrap: wrap;
+        }
+        .btn-edit, .btn-delete {
+            display: inline-block;
+            padding: 0.55rem 1.5rem;
+            border-radius: 40px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: var(--transition);
+            font-size: 0.85rem;
+        }
+        .btn-edit {
+            background: rgba(59, 130, 246, 0.12);
+            color: #93c5fd;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+        .btn-edit:hover {
+            background: rgba(59, 130, 246, 0.25);
+            border-color: var(--blue-accent);
+            transform: translateY(-2px);
+        }
+        .btn-delete {
+            background: rgba(239, 68, 68, 0.12);
+            color: #fecaca;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+        .btn-delete:hover {
+            background: rgba(239, 68, 68, 0.25);
+            border-color: var(--danger);
+            transform: translateY(-2px);
+        }
+
+        /* Comments section */
+        .comments-section {
+            background: var(--surface);
+            border-radius: var(--radius);
+            padding: 2.2rem;
+            margin: 2rem 0 3rem;
+            border: 1px solid var(--border);
+            box-shadow: 0 20px 30px -10px rgba(0,0,0,0.4);
+        }
+        .comments-title {
+            font-size: 1.8rem;
+            margin-bottom: 1.8rem;
+            color: var(--text-primary);
+        }
+        .comment {
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            padding: 1.4rem 0;
+        }
+        .comment:last-child {
+            border-bottom: none;
+        }
+        .comment-header {
+            display: flex;
+            gap: 1rem;
+            align-items: baseline;
+            flex-wrap: wrap;
+            margin-bottom: 0.5rem;
+        }
+        .comment-author {
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+        .comment-email {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+        .comment-date {
+            font-size: 0.75rem;
+            color: #64748b;
+        }
+        .comment-body {
+            color: #cbd5e1;
+            line-height: 1.6;
+            margin-top: 0.5rem;
+        }
+        .comment-actions {
+            margin-left: auto;
+            display: flex;
+            gap: 0.8rem;
+        }
+        .comment-actions a {
+            font-size: 0.75rem;
+            font-weight: 500;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .edit-link {
+            color: var(--accent-light);
+        }
+        .edit-link:hover {
+            color: var(--accent);
+        }
+        .delete-link {
+            color: #f87171;
+        }
+        .delete-link:hover {
+            color: #fca5a5;
+        }
+
+        /* Comment form – manual rendering (only body field) */
+        .comment-form {
+            margin-top: 2.5rem;
+        }
+        .comment-form h3 {
+            font-size: 1.4rem;
+            margin-bottom: 1.2rem;
+            color: var(--text-primary);
+        }
+        .form-group {
+            margin-bottom: 1.3rem;
+        }
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 0.4rem;
+            color: var(--text-secondary);
+        }
+        .form-group textarea {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            background: var(--bg);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 0.95rem;
+            transition: var(--transition);
+            outline: none;
+        }
+        .form-group textarea:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15);
+        }
+        .btn-submit {
+            background: var(--gradient);
+            border: none;
+            color: #0a0b0f;
+            padding: 0.7rem 2rem;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+        }
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(212, 175, 55, 0.4);
+            filter: brightness(1.05);
+        }
+
+        .login-prompt {
+            background: var(--surface-hover);
+            border-radius: var(--radius);
+            padding: 1.8rem;
+            text-align: center;
+            margin-top: 2rem;
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+        }
+        .login-prompt p {
+            margin-bottom: 1rem;
+        }
+        .login-prompt a.btn-primary {
+            display: inline-block;
+            margin-bottom: 0.8rem;
+        }
+
+        .empty-comments {
+            color: var(--text-secondary);
+            padding: 1.5rem 0;
+        }
+
+        .footer {
+            text-align: center;
+            border-top: 1px solid var(--border);
+            padding: 2.5rem;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            background: var(--bg-secondary);
+        }
+
+        @media (max-width: 680px) {
+            .post-title { font-size: 2rem; }
+            .post-card, .comments-section { padding: 1.5rem; }
+            .container { padding: 0 1rem; }
+            .post-detail-image { max-height: 300px; }
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="nav-inner">
+        <div class="logo"><a href="{% url 'blog-home' %}">MyBlog</a></div>
+        <div class="nav-links">
+            <a href="{% url 'blog-home' %}">Home</a>
+            {% if user.is_authenticated %}
+                <a href="{% url 'profile' user.username %}">Profile</a>
+                <a href="{% url 'post-create' %}" class="btn-primary">Write story</a>
+                <form action="{% url 'logout' %}" method="post" style="margin:0">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-outline">Sign out</button>
+                </form>
+            {% else %}
+                <a href="{% url 'login' %}" class="btn-outline">Sign in</a>
+            {% endif %}
+        </div>
+    </div>
+</nav>
+
+<main class="container">
+    <article class="post-card">
+        <h1 class="post-title">{{ post.title }}</h1>
+        <div class="post-meta">
+            <span>👤 <a href="{% url 'profile' post.author.username %}">{{ post.author.get_full_name|default:post.author.username }}</a></span>
+            <span>📅 {{ post.date_posted|date:"F j, Y" }}</span>
+        </div>
+
+        {% if post.image %}
+            <img src="{{ post.image.url }}" alt="{{ post.title }}" class="post-detail-image">
+        {% endif %}
+
+        <div class="post-content">
+            {{ post.content|linebreaks }}
+        </div>
+
+        <!-- Likes & Comments stats -->
+        <div class="post-stats">
+            <a href="{% url 'like_post' post.id %}" class="like-btn">
+                {% if user_liked %}
+                    ❤️ {{ post.total_likes }}
+                {% else %}
+                    🤍 {{ post.total_likes }}
+                {% endif %}
+            </a>
+            <span class="stats-comment">💬 {{ comments|length }}</span>
+        </div>
+
+        {% if user == post.author %}
+            <div class="action-buttons">
+                <a href="{% url 'post-update' post.id %}" class="btn-edit">✏️ Edit post</a>
+                <a href="{% url 'post-delete' post.id %}" class="btn-delete">🗑️ Delete post</a>
+            </div>
+        {% endif %}
+    </article>
+
+    <!-- Comments section -->
+    <div class="comments-section">
+        <h2 class="comments-title">💬 Comments ({{ comments.count }})</h2>
+
+        {% for comment in comments %}
+            <div class="comment">
+                <div class="comment-header">
+                    <div class="comment-author">
+                        {% if comment.user %}
+                            {{ comment.user.get_full_name|default:comment.user.username }}
+                        {% else %}
+                            {{ comment.name }}
+                        {% endif %}
+                    </div>
+                    {% if comment.email %}
+                        <span class="comment-email">{{ comment.email }}</span>
+                    {% endif %}
+                    <span class="comment-date">{{ comment.created|date:"F j, Y • g:i a" }}</span>
+                    
+                    <!-- Actions for comment author and post author -->
+                    <div class="comment-actions">
+                        {% if user == comment.user %}
+                            <a href="{% url 'comment-edit' comment.pk %}" class="edit-link">✏️ Edit</a>
+                            <a href="{% url 'comment-delete' comment.pk %}" class="delete-link">🗑️ Delete</a>
+                        {% elif user == post.author %}
+                            <a href="{% url 'comment-delete' comment.pk %}" class="delete-link">🗑️ Delete</a>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="comment-body">
+                    {{ comment.body|linebreaks }}
+                </div>
+            </div>
+        {% empty %}
+            <div class="empty-comments">
+                ✨ No comments yet. Be the first to share your thoughts.
+            </div>
+        {% endfor %}
+
+        <!-- Only show comment form for logged-in users – manual rendering of the body field -->
+        {% if user.is_authenticated %}
+            <div class="comment-form">
+                <h3>Leave a reply</h3>
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="id_body">Your comment</label>
+                        <textarea name="body" id="id_body" rows="4" required placeholder="Write something..."></textarea>
+                    </div>
+                    <button type="submit" class="btn-submit">Post comment →</button>
+                </form>
+            </div>
+        {% else %}
+            <div class="login-prompt">
+                <p>🔒 You must be logged in to leave a comment.</p>
+                <a href="{% url 'login' %}?next={{ request.path }}" class="btn-primary">Login to comment</a>
+                <p style="margin-top: 0.8rem; font-size: 0.8rem;">Don't have an account? <a href="{% url 'register' %}" style="color: var(--accent-light);">Register here</a></p>
+            </div>
+        {% endif %}
+    </div>
+</main>
+
+<footer class="footer">
+    <p>© 2026 MyBlog — built with Django & love</p>
+</footer>
+
+</body>
+</html>

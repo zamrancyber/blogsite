@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ profile_user.username }} | Profile</title>
+
+    <!-- Premium font pairing -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400..700&family=Playfair+Display:ital,wght@0,500..800;1,500..800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg: #0a0b0f;
+            --bg-secondary: #13161d;
+            --surface: #1a1d27;
+            --surface-hover: #222736;
+            --border: rgba(255, 255, 255, 0.06);
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --accent: #d4af37;
+            --accent-light: #f3d779;
+            --gradient: linear-gradient(135deg, #d4af37 0%, #b8962e 100%);
+            --radius: 24px;
+            --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text-primary);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            background-image:
+                radial-gradient(ellipse 80% 50% at 50% -10%, rgba(212, 175, 55, 0.08), transparent),
+                radial-gradient(ellipse 40% 70% at 90% 80%, rgba(139, 92, 246, 0.04), transparent);
+            background-attachment: fixed;
+        }
+
+        h1, h2, h3 {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-weight: 700;
+        }
+
+        .container { max-width: 1000px; margin: 0 auto; padding: 0 1.5rem; }
+
+        /* Glass Navigation */
+        .navbar {
+            background: rgba(10, 11, 15, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            padding: 0.75rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .nav-inner {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .logo a {
+            font-size: 1.85rem;
+            font-weight: 800;
+            font-family: 'Playfair Display', serif;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        .logo a::before {
+            content: "✦";
+            font-size: 1.4rem;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .nav-links {
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .nav-links a,
+        .nav-links button {
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+            padding: 0.55rem 1.3rem;
+            border-radius: 100px;
+            transition: var(--transition);
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            color: var(--text-secondary);
+            white-space: nowrap;
+        }
+        .nav-links a:hover,
+        .nav-links button:hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.05);
+        }
+        .btn-outline {
+            border: 1px solid rgba(255, 255, 255, 0.15) !important;
+            background: transparent !important;
+            color: var(--text-secondary) !important;
+        }
+        .btn-outline:hover {
+            border-color: var(--accent) !important;
+            color: var(--accent) !important;
+        }
+        .btn-primary {
+            background: var(--gradient) !important;
+            color: #0a0b0f !important;
+            font-weight: 600 !important;
+            box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+            border: none !important;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(212, 175, 55, 0.4);
+            filter: brightness(1.05);
+        }
+
+        /* Profile Card */
+        .profile-card {
+            background: var(--surface);
+            border-radius: var(--radius);
+            padding: 2.5rem 2.2rem;
+            margin: 2rem 0;
+            box-shadow: 0 20px 30px -10px rgba(0,0,0,0.4);
+            border: 1px solid var(--border);
+            display: flex;
+            gap: 2.5rem;
+            flex-wrap: wrap;
+            backdrop-filter: blur(4px);
+        }
+        .avatar {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--accent);
+            box-shadow: 0 8px 20px rgba(212, 175, 55, 0.3);
+        }
+        .avatar-placeholder {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: var(--surface-hover);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            border: 3px solid var(--border);
+        }
+        .profile-info {
+            flex: 1;
+        }
+        .profile-info h1 {
+            font-size: 2.2rem;
+            background: linear-gradient(to right, #fff, var(--accent-light));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 0.5rem;
+        }
+        .meta {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 0.9rem;
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+        .bio {
+            color: #cbd5e1;
+            margin: 1rem 0;
+            line-height: 1.7;
+            font-size: 1rem;
+        }
+        .social-links a {
+            display: inline-block;
+            margin-right: 1.2rem;
+            color: var(--accent-light);
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+        .social-links a:hover {
+            color: #fff;
+            text-decoration: underline;
+        }
+        .btn-edit {
+            display: inline-block;
+            margin-top: 1.5rem;
+            background: var(--gradient);
+            color: #0a0b0f;
+            padding: 0.55rem 1.6rem;
+            border-radius: 40px;
+            font-weight: 600;
+            text-decoration: none;
+            box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+            transition: var(--transition);
+        }
+        .btn-edit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(212, 175, 55, 0.4);
+        }
+
+        /* Posts list */
+        .section-title {
+            font-size: 1.8rem;
+            margin: 2.5rem 0 1.5rem;
+            color: var(--text-primary);
+        }
+        .post-card {
+            background: var(--surface);
+            border-radius: 20px;
+            padding: 1.5rem 1.8rem;
+            margin-bottom: 1rem;
+            border: 1px solid var(--border);
+            transition: var(--transition);
+        }
+        .post-card:hover {
+            background: var(--surface-hover);
+            border-color: rgba(212, 175, 55, 0.3);
+        }
+        .post-card h3 {
+            font-size: 1.3rem;
+            margin-bottom: 0.3rem;
+        }
+        .post-card h3 a {
+            text-decoration: none;
+            color: var(--text-primary);
+            transition: color 0.2s;
+        }
+        .post-card h3 a:hover {
+            color: var(--accent);
+        }
+        .post-card small {
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+        }
+        .post-card p {
+            color: #cbd5e1;
+            margin-top: 0.5rem;
+            line-height: 1.5;
+        }
+        .empty-message {
+            color: var(--text-secondary);
+            padding: 1rem 0;
+        }
+
+        hr {
+            margin: 2rem 0;
+            border: none;
+            border-top: 1px solid var(--border);
+        }
+
+        .footer {
+            text-align: center;
+            border-top: 1px solid var(--border);
+            padding: 2.5rem;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            background: var(--bg-secondary);
+            margin-top: 2rem;
+        }
+
+        @media (max-width: 680px) {
+            .profile-card {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+            .profile-info h1 {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="container nav-inner">
+        <div class="logo"><a href="{% url 'blog-home' %}">MyBlog</a></div>
+        <div class="nav-links">
+            <a href="{% url 'blog-home' %}">Home</a>
+            {% if user.is_authenticated %}
+                <a href="{% url 'edit_profile' %}" class="btn-outline">✏️ Edit Profile</a>
+                <form action="{% url 'logout' %}" method="post" style="display:inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-outline">Logout</button>
+                </form>
+            {% else %}
+                <a href="{% url 'login' %}" class="btn-outline">Login</a>
+            {% endif %}
+        </div>
+    </div>
+</nav>
+
+<main class="container">
+    <div class="profile-card">
+        {% if profile.avatar %}
+            <img src="{{ profile.avatar.url }}" alt="{{ profile_user.username }}" class="avatar">
+        {% else %}
+            <div class="avatar-placeholder">👤</div>
+        {% endif %}
+        <div class="profile-info">
+            <h1>{{ profile_user.get_full_name|default:profile_user.username }}</h1>
+            <div class="meta">
+                <span>@{{ profile_user.username }}</span>
+                <span>📅 Joined {{ profile.joined_at|date:"F Y" }}</span>
+                {% if profile.gender %}
+                    <span>⚥ {{ profile.get_gender_display }}</span>
+                {% endif %}
+                {% if profile.location %}
+                    <span>📍 {{ profile.location }}</span>
+                {% endif %}
+            </div>
+            {% if profile.bio %}
+                <div class="bio">{{ profile.bio|linebreaks }}</div>
+            {% endif %}
+            <div class="social-links">
+                {% if profile.website %}<a href="{{ profile.website }}" target="_blank">🌐 Website</a>{% endif %}
+                {% if profile.twitter %}<a href="https://twitter.com/{{ profile.twitter }}" target="_blank">🐦 Twitter</a>{% endif %}
+                {% if profile.github %}<a href="https://github.com/{{ profile.github }}" target="_blank">💻 GitHub</a>{% endif %}
+            </div>
+            {% if user == profile_user %}
+                <a href="{% url 'edit_profile' %}" class="btn-edit">Edit Profile</a>
+            {% endif %}
+        </div>
+    </div>
+
+    <h2 class="section-title">📝 Published posts by {{ profile_user.username }}</h2>
+    {% if posts %}
+        {% for post in posts %}
+            <div class="post-card">
+                <h3><a href="{% url 'post-detail' post.id %}">{{ post.title }}</a></h3>
+                <small>{{ post.date_posted|date:"F j, Y" }}</small>
+                <p>{{ post.content|striptags|truncatewords:30 }}</p>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p class="empty-message">No published posts yet.</p>
+    {% endif %}
+</main>
+
+<footer class="footer">
+    <p>© 2026 MyBlog — Where ideas find a home</p>
+</footer>
+
+</body>
+</html>

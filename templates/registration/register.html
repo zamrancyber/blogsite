@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register | MyBlog</title>
+
+    <!-- Premium font pairing -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400..700&family=Playfair+Display:ital,wght@0,500..800;1,500..800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg: #0a0b0f;
+            --surface: #1a1d27;
+            --border: rgba(255, 255, 255, 0.08);
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --accent: #d4af37;
+            --accent-light: #f3d779;
+            --gradient: linear-gradient(135deg, #d4af37 0%, #b8962e 100%);
+            --danger: #ef4444;
+            --radius: 24px;
+            --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            background-image:
+                radial-gradient(ellipse 80% 50% at 50% -10%, rgba(212, 175, 55, 0.08), transparent),
+                radial-gradient(ellipse 40% 70% at 90% 80%, rgba(139, 92, 246, 0.06), transparent);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        h1, h2, h3 {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-weight: 700;
+        }
+
+        .register-container {
+            width: 100%;
+            max-width: 480px;
+        }
+
+        .register-card {
+            background: var(--surface);
+            backdrop-filter: blur(12px);
+            border-radius: var(--radius);
+            padding: 2.8rem 2.2rem;
+            box-shadow: 0 25px 40px -15px rgba(0,0,0,0.5);
+            border: 1px solid var(--border);
+            transition: var(--transition);
+            background: rgba(26, 29, 39, 0.9);
+        }
+
+        .register-card:hover {
+            border-color: rgba(212, 175, 55, 0.25);
+            box-shadow: 0 25px 45px -12px rgba(0,0,0,0.6);
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .logo h1 {
+            font-size: 2.3rem;
+            font-weight: 800;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.3rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .logo h1::before {
+            content: "✦";
+            font-size: 1.8rem;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .logo p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.6rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+            letter-spacing: 0.3px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.85rem 1.1rem;
+            background: var(--bg);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 18px;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 0.95rem;
+            transition: var(--transition);
+            outline: none;
+        }
+
+        .form-group input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15);
+        }
+
+        .register-btn {
+            width: 100%;
+            background: var(--gradient);
+            color: #0a0b0f;
+            border: none;
+            padding: 0.9rem;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 40px;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-top: 0.5rem;
+            font-family: inherit;
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+        }
+
+        .register-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(212, 175, 55, 0.4);
+            filter: brightness(1.05);
+        }
+
+        .error-msg {
+            background: rgba(239, 68, 68, 0.12);
+            color: #fecaca;
+            padding: 0.65rem 1rem;
+            border-radius: 16px;
+            font-size: 0.82rem;
+            margin-bottom: 1.2rem;
+            border-left: 3px solid var(--danger);
+        }
+
+        .login-link {
+            text-align: center;
+            margin-top: 1.8rem;
+            font-size: 0.88rem;
+            color: var(--text-secondary);
+        }
+
+        .login-link a {
+            color: var(--accent-light);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .login-link a:hover {
+            text-decoration: underline;
+            color: #fff;
+        }
+
+        .helptext {
+            display: block;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-top: 0.3rem;
+            opacity: 0.8;
+        }
+
+        .helptext ul {
+            list-style: none;
+            padding-left: 0;
+            margin-top: 0.2rem;
+        }
+
+        .helptext li {
+            margin-bottom: 0.15rem;
+            position: relative;
+            padding-left: 1.2rem;
+        }
+
+        .helptext li::before {
+            content: "•";
+            position: absolute;
+            left: 0.3rem;
+            color: var(--accent);
+        }
+    </style>
+</head>
+<body>
+<div class="register-container">
+    <div class="register-card">
+        <div class="logo">
+            <h1>MyBlog</h1>
+            <p>Join the community of writers</p>
+        </div>
+
+        {% if form.errors %}
+            <div class="error-msg">
+                Please correct the errors below.
+            </div>
+        {% endif %}
+
+        <form method="post">
+            {% csrf_token %}
+
+            <!-- Username field -->
+            <div class="form-group">
+                <label for="{{ form.username.id_for_label }}">Username</label>
+                <input type="text" name="{{ form.username.name }}" id="{{ form.username.id_for_label }}"
+                       value="{{ form.username.value|default:'' }}" required
+                       placeholder="Choose a username">
+                {% if form.username.errors %}
+                    <div class="error-msg" style="margin-top: 0.5rem;">{{ form.username.errors }}</div>
+                {% endif %}
+                <div class="helptext">{{ form.username.help_text|safe }}</div>
+            </div>
+
+            <!-- Password1 field -->
+            <div class="form-group">
+                <label for="{{ form.password1.id_for_label }}">Password</label>
+                <input type="password" name="{{ form.password1.name }}" id="{{ form.password1.id_for_label }}"
+                       required placeholder="Create a password">
+                {% if form.password1.errors %}
+                    <div class="error-msg" style="margin-top: 0.5rem;">{{ form.password1.errors }}</div>
+                {% endif %}
+                <div class="helptext">{{ form.password1.help_text|safe }}</div>
+            </div>
+
+            <!-- Password2 field -->
+            <div class="form-group">
+                <label for="{{ form.password2.id_for_label }}">Confirm Password</label>
+                <input type="password" name="{{ form.password2.name }}" id="{{ form.password2.id_for_label }}"
+                       required placeholder="Repeat your password">
+                {% if form.password2.errors %}
+                    <div class="error-msg" style="margin-top: 0.5rem;">{{ form.password2.errors }}</div>
+                {% endif %}
+            </div>
+
+            <button type="submit" class="register-btn">Create account →</button>
+        </form>
+
+        <div class="login-link">
+            Already have an account?
+            <a href="{% url 'login' %}">Sign in</a>
+        </div>
+    </div>
+</div>
+</body>
+</html>
