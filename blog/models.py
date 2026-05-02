@@ -1,12 +1,10 @@
 from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import User
-from django.core.validators import MinLengthValidator
+from django.core.validators import MinLengthValidator, FileExtensionValidator
 from django.urls import reverse
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from django.core.validators import FileExtensionValidator
-
 # Then in your Post model:
 image = models.ImageField(
     upload_to='post_images/',
@@ -23,6 +21,8 @@ avatar = models.ImageField(
     validators=[FileExtensionValidator(allowed_extensions=['jpg', 'jpeg', 'png', 'gif', 'bmp', 'tiff', 'webp', 'heic', 'heif'])]
 )
 
+from django.core.validators import FileExtensionValidator
+
 class Post(models.Model):
     STATUS_CHOICES = (
         ('pending', 'Pending Approval'),
@@ -34,9 +34,15 @@ class Post(models.Model):
     content = models.TextField()
     date_posted = models.DateTimeField(default=timezone.now)
     author = models.ForeignKey(User, on_delete=models.CASCADE)
-    image = models.ImageField(upload_to='post_images/', blank=True, null=True)
+    image = models.ImageField(
+        upload_to='post_images/',
+        blank=True,
+        null=True,
+        validators=[FileExtensionValidator(
+            allowed_extensions=['jpg', 'jpeg', 'png', 'gif', 'bmp', 'tiff', 'webp', 'heic', 'heif']
+        )]
+    )
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
-
     def __str__(self):
         return self.title
 
@@ -84,7 +90,14 @@ class Profile(models.Model):
     bio = models.TextField(max_length=500, blank=True, null=True)
     location = models.CharField(max_length=100, blank=True, null=True)
     gender = models.CharField(max_length=1, choices=GENDER_CHOICES, blank=True, default='')
-    avatar = models.ImageField(upload_to='avatars/', blank=True, null=True)
+    avatar = models.ImageField(
+        upload_to='avatars/',
+        blank=True,
+        null=True,
+        validators=[FileExtensionValidator(
+            allowed_extensions=['jpg', 'jpeg', 'png', 'gif', 'bmp', 'tiff', 'webp', 'heic', 'heif']
+        )]
+    )
     website = models.URLField(blank=True, null=True)
     twitter = models.CharField(max_length=100, blank=True, null=True)
     github = models.CharField(max_length=100, blank=True, null=True)
