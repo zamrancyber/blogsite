@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Followers of {{ target_user.username }} | MyBlog</title>
+    <title>Following | Mind Journal</title>
 
     <!-- Premium font pairing -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -140,7 +140,7 @@
             color: var(--accent) !important;
         }
 
-        /* Followers section */
+        /* Following section */
         .followers-card {
             background: var(--surface);
             border-radius: var(--radius);
@@ -247,17 +247,17 @@
 
 <main class="container">
     <div class="followers-card">
-        <h2>Followers of {{ target_user.username }}</h2>
+        <h2>People {{ target_user.username }} follows</h2>
         <ul class="follower-list">
-            {% for follow in followers %}
-                <a href="{% url 'profile' follow.follower.username %}" class="follower-item">
+            {% for follow in following %}
+                <a href="{% url 'profile' follow.followed.username %}" class="follower-item">
                     <div class="follower-avatar">👤</div>
-                    <span class="follower-name">{{ follow.follower.username }}</span>
+                    <span class="follower-name">{{ follow.followed.username }}</span>
                     <span class="follower-arrow">→</span>
                 </a>
             {% empty %}
                 <div class="empty-state">
-                    <p>No followers yet.</p>
+                    <p>Not following anyone yet.</p>
                 </div>
             {% endfor %}
         </ul>

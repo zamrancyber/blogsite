@@ -309,7 +309,7 @@
 
 <nav class="navbar">
     <div class="nav-inner">
-        <div class="logo"><a href="{% url 'blog-home' %}">MyBlog</a></div>
+        <div class="logo"><a href="{% url 'blog-home' %}">Mind Journal</a></div>
         <div class="nav-links">
             <a href="{% url 'blog-home' %}">Home</a>
             {% if user.is_authenticated %}
@@ -331,6 +331,7 @@
         <div class="chat-header">
             <h2>Chat with {{ other_user.username }}</h2>
             <span class="user-badge">@{{ other_user.username }}</span>
+            <a href="{% url 'chat_list' %}" class="btn-outline" style="font-size: 0.8rem;">← All messages</a>
         </div>
 
         <div id="chat-messages">
@@ -361,7 +362,7 @@
 </main>
 
 <footer class="footer">
-    <p>© 2026 MyBlog — built with Django & love</p>
+    <p>© 2026 Mind Journal — built with Django & love</p>
 </footer>
 
 <script>
