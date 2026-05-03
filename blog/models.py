@@ -1,27 +1,12 @@
 from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import User
-from django.core.validators import MinLengthValidator, FileExtensionValidator
+from django.core.validators import MinLengthValidator
 from django.urls import reverse
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-# Then in your Post model:
-image = models.ImageField(
-    upload_to='post_images/',
-    blank=True,
-    null=True,
-    validators=[FileExtensionValidator(allowed_extensions=['jpg', 'jpeg', 'png', 'gif', 'bmp', 'tiff', 'webp', 'heic', 'heif'])]
-)
+from cloudinary.models import CloudinaryField  # ✅ Import this
 
-# In your Profile model:
-avatar = models.ImageField(
-    upload_to='avatars/',
-    blank=True,
-    null=True,
-    validators=[FileExtensionValidator(allowed_extensions=['jpg', 'jpeg', 'png', 'gif', 'bmp', 'tiff', 'webp', 'heic', 'heif'])]
-)
-
-from django.core.validators import FileExtensionValidator
 
 class Post(models.Model):
     STATUS_CHOICES = (
@@ -34,15 +19,17 @@ class Post(models.Model):
     content = models.TextField()
     date_posted = models.DateTimeField(default=timezone.now)
     author = models.ForeignKey(User, on_delete=models.CASCADE)
-    image = models.ImageField(
-        upload_to='post_images/',
+    
+    # ✅ FIXED: CloudinaryField instead of ImageField
+    image = CloudinaryField(
+        'image',
         blank=True,
         null=True,
-        validators=[FileExtensionValidator(
-            allowed_extensions=['jpg', 'jpeg', 'png', 'gif', 'bmp', 'tiff', 'webp', 'heic', 'heif']
-        )]
+        folder='post_images',
     )
+    
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
+
     def __str__(self):
         return self.title
 
@@ -50,11 +37,9 @@ class Post(models.Model):
         return reverse('post-detail', kwargs={'pk': self.pk})
 
     def total_likes(self):
-        """Return total number of likes for this post"""
         return self.likes.count()
 
     def is_liked_by(self, user):
-        """Check if a given user has liked this post"""
         if user.is_authenticated:
             return self.likes.filter(user=user).exists()
         return False
@@ -90,14 +75,15 @@ class Profile(models.Model):
     bio = models.TextField(max_length=500, blank=True, null=True)
     location = models.CharField(max_length=100, blank=True, null=True)
     gender = models.CharField(max_length=1, choices=GENDER_CHOICES, blank=True, default='')
-    avatar = models.ImageField(
-        upload_to='avatars/',
+
+    # ✅ FIXED: CloudinaryField instead of ImageField
+    avatar = CloudinaryField(
+        'avatar',
         blank=True,
         null=True,
-        validators=[FileExtensionValidator(
-            allowed_extensions=['jpg', 'jpeg', 'png', 'gif', 'bmp', 'tiff', 'webp', 'heic', 'heif']
-        )]
+        folder='avatars',
     )
+
     website = models.URLField(blank=True, null=True)
     twitter = models.CharField(max_length=100, blank=True, null=True)
     github = models.CharField(max_length=100, blank=True, null=True)
@@ -119,13 +105,12 @@ class Like(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        unique_together = ('user', 'post')  # One like per user per post
+        unique_together = ('user', 'post')
 
     def __str__(self):
         return f"{self.user.username} likes {self.post.title}"
 
 
-# Auto-create Profile when User is created
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
