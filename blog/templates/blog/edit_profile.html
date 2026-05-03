@@ -46,7 +46,7 @@
             font-weight: 700;
         }
 
-        .container { max-width: 700px; margin: 0 auto; padding: 2rem 1.5rem; }
+        .container { max-width: 800px; margin: 0 auto; padding: 0 1.5rem; }
 
         /* Glass Navigation (identical to premium home) */
         .navbar {
@@ -141,7 +141,7 @@
         .form-card {
             background: var(--surface);
             border-radius: var(--radius);
-            padding: 2.5rem 2.2rem;
+            padding: 2.5rem 2rem;
             box-shadow: 0 20px 30px -10px rgba(0,0,0,0.4);
             border: 1px solid var(--border);
             backdrop-filter: blur(4px);
@@ -150,15 +150,23 @@
 
         .form-card h1 {
             font-size: 2rem;
-            margin-bottom: 2rem;
+            margin-bottom: 1.5rem;
             background: linear-gradient(to right, #fff, var(--accent));
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
         }
 
+        .section-title {
+            font-size: 1.4rem;
+            margin: 1.5rem 0 1rem;
+            color: var(--accent-light);
+            border-left: 3px solid var(--accent);
+            padding-left: 0.8rem;
+        }
+
         .form-group {
-            margin-bottom: 1.5rem;
+            margin-bottom: 1.3rem;
         }
 
         label {
@@ -166,7 +174,7 @@
             display: block;
             margin-bottom: 0.4rem;
             color: var(--text-secondary);
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             letter-spacing: 0.3px;
         }
 
@@ -189,7 +197,7 @@
         }
 
         textarea {
-            min-height: 120px;
+            min-height: 100px;
             resize: vertical;
         }
 
@@ -251,7 +259,12 @@
             color: var(--text-primary);
         }
 
-        /* Footer */
+        hr {
+            margin: 1rem 0;
+            border: none;
+            border-top: 1px solid var(--border);
+        }
+
         .footer {
             text-align: center;
             border-top: 1px solid var(--border);
@@ -264,7 +277,7 @@
 </head>
 <body>
 
-<!-- Premium Glass Navbar (same as home & delete pages) -->
+<!-- Premium Glass Navbar -->
 <nav class="navbar">
     <div class="nav-inner">
         <div class="logo"><a href="{% url 'blog-home' %}">Mind Journal</a></div>
@@ -289,15 +302,39 @@
         <h1>✏️ Edit your profile</h1>
         <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
-            {% for field in form %}
+
+            <!-- Account Information (UserForm) -->
+            <div class="section-title">Account Information</div>
+            {% for field in user_form %}
                 <div class="form-group">
                     {{ field.label_tag }}
                     {{ field }}
+                    {% if field.help_text %}
+                        <small style="color: var(--text-secondary); display: block; margin-top: 0.2rem;">{{ field.help_text }}</small>
+                    {% endif %}
                     {% if field.errors %}
                         <ul class="errorlist">{{ field.errors }}</ul>
                     {% endif %}
                 </div>
             {% endfor %}
+
+            <hr>
+
+            <!-- Profile Information (ProfileForm) -->
+            <div class="section-title">Profile Information</div>
+            {% for field in profile_form %}
+                <div class="form-group">
+                    {{ field.label_tag }}
+                    {{ field }}
+                    {% if field.help_text %}
+                        <small style="color: var(--text-secondary); display: block; margin-top: 0.2rem;">{{ field.help_text }}</small>
+                    {% endif %}
+                    {% if field.errors %}
+                        <ul class="errorlist">{{ field.errors }}</ul>
+                    {% endif %}
+                </div>
+            {% endfor %}
+
             <div class="form-actions">
                 <button type="submit" class="btn-save">Save changes</button>
                 <a href="{% url 'profile' user.username %}" class="btn-cancel">Cancel</a>

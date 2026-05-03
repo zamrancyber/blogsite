@@ -11,6 +11,7 @@ from django.http import HttpResponseRedirect, JsonResponse
 from django.db import connections
 from django.db.utils import OperationalError
 from django.db.models import Q
+from .forms import ProfileForm, UserForm   # we'll create UserForm
 
 from .models import Post, Comment, Profile, Like, Follow, Message
 from .forms import CommentForm, ProfileForm
@@ -168,18 +169,25 @@ def profile_view(request, username):
     }
     return render(request, 'blog/profile.html', context)
 
+from .forms import ProfileForm, UserForm   # we'll create UserForm
+
 @login_required
 def edit_profile(request):
-    profile = request.user.profile
     if request.method == 'POST':
-        form = ProfileForm(request.POST, request.FILES, instance=profile)
-        if form.is_valid():
-            form.save()
+        user_form = UserForm(request.POST, instance=request.user)
+        profile_form = ProfileForm(request.POST, request.FILES, instance=request.user.profile)
+        if user_form.is_valid() and profile_form.is_valid():
+            user_form.save()
+            profile_form.save()
             messages.success(request, 'Your profile has been updated!')
             return redirect('profile', username=request.user.username)
     else:
-        form = ProfileForm(instance=profile)
-    return render(request, 'blog/edit_profile.html', {'form': form})
+        user_form = UserForm(instance=request.user)
+        profile_form = ProfileForm(instance=request.user.profile)
+    return render(request, 'blog/edit_profile.html', {
+        'user_form': user_form,
+        'profile_form': profile_form,
+    })
 
 # ---------- Health check ----------
 def health_check(request):
@@ -220,26 +228,51 @@ def following_list(request, username):
     following = user.following.all()
     return render(request, 'blog/following_list.html', {'target_user': user, 'following': following})
 
-# ---------- Chat ----------
+# ---------- Prevent self-chat ----------
 @login_required
 def chat_room(request, username):
+    if request.user.username == username:
+        messages.error(request, "You cannot chat with yourself.")
+        return redirect('profile', username=request.user.username)
     other_user = get_object_or_404(User, username=username)
-    messages = Message.objects.filter(
+    messages_list = Message.objects.filter(
         (Q(sender=request.user) & Q(receiver=other_user)) |
         (Q(sender=other_user) & Q(receiver=request.user))
     ).order_by('timestamp')
     Message.objects.filter(sender=other_user, receiver=request.user, is_read=False).update(is_read=True)
-    return render(request, 'blog/chat.html', {'other_user': other_user, 'messages': messages})
+    return render(request, 'blog/chat.html', {'other_user': other_user, 'messages': messages_list})
 
 @login_required
 def send_message(request, username):
     if request.method == 'POST':
+        if request.user.username == username:
+            messages.error(request, "You cannot send a message to yourself.")
+            return redirect('profile', username=request.user.username)
         receiver = get_object_or_404(User, username=username)
         content = request.POST.get('content', '').strip()
         if content:
             Message.objects.create(sender=request.user, receiver=receiver, content=content)
         return redirect('chat_room', username=username)
     return redirect('chat_room', username=username)
+
+# ---------- Edit / Delete message ----------
+@login_required
+def edit_message(request, message_id):
+    message = get_object_or_404(Message, id=message_id, sender=request.user)
+    if request.method == 'POST':
+        new_content = request.POST.get('content', '').strip()
+        if new_content:
+            message.content = new_content
+            message.save()
+            return redirect('chat_room', username=message.receiver.username)
+    return render(request, 'blog/edit_message.html', {'message': message})
+
+@login_required
+def delete_message(request, message_id):
+    message = get_object_or_404(Message, id=message_id, sender=request.user)
+    other_user = message.receiver
+    message.delete()
+    return redirect('chat_room', username=other_user.username)
 
 @login_required
 def get_new_messages(request, username):

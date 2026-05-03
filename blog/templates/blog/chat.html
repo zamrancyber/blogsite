@@ -225,6 +225,20 @@
             opacity: 0.7;
             margin-top: 0.2rem;
         }
+        .message-actions {
+            display: inline-flex;
+            gap: 0.4rem;
+            margin-left: 0.5rem;
+            font-size: 0.7rem;
+        }
+        .message-actions a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            padding: 0 0.2rem;
+        }
+        .message-actions a:hover {
+            color: var(--accent-light);
+        }
 
         /* Chat form */
         #chat-form {
@@ -321,10 +335,19 @@
 
         <div id="chat-messages">
             {% for msg in messages %}
-                <div class="message {% if msg.sender == request.user %}sent{% else %}received{% endif %}">
+                <div class="message {% if msg.sender == request.user %}sent{% else %}received{% endif %}" data-msg-id="{{ msg.id }}">
                     <strong>{{ msg.sender.username }}</strong>
                     <span>{{ msg.content }}</span>
                     <small>{{ msg.timestamp|date:"H:i" }}</small>
+                    {% if msg.sender == request.user %}
+                        <div class="message-actions">
+                            <a href="{% url 'edit_message' msg.id %}">✏️</a>
+                            <form action="{% url 'delete_message' msg.id %}" method="post" style="display: inline;">
+                                {% csrf_token %}
+                                <button type="submit" style="background: none; border: none; color: var(--text-secondary); cursor: pointer; padding: 0; font-size: inherit;">🗑️</button>
+                            </form>
+                        </div>
+                    {% endif %}
                 </div>
             {% endfor %}
         </div>
@@ -359,7 +382,18 @@
                     for (let msg of data) {
                         const div = document.createElement('div');
                         div.className = `message ${msg.sender === '{{ request.user.username }}' ? 'sent' : 'received'}`;
-                        div.innerHTML = `<strong>${msg.sender}</strong><span>${msg.content}</span><small>${new Date(msg.timestamp).toLocaleTimeString()}</small>`;
+                        div.setAttribute('data-msg-id', msg.id);
+                        let actions = '';
+                        if (msg.sender === '{{ request.user.username }}') {
+                            actions = `<div class="message-actions">
+                                        <a href="/message/${msg.id}/edit/">✏️</a>
+                                        <form action="/message/${msg.id}/delete/" method="post" style="display: inline;">
+                                            <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+                                            <button type="submit" style="background: none; border: none; color: var(--text-secondary); cursor: pointer; padding: 0; font-size: inherit;">🗑️</button>
+                                        </form>
+                                    </div>`;
+                        }
+                        div.innerHTML = `<strong>${msg.sender}</strong><span>${msg.content}</span><small>${new Date(msg.timestamp).toLocaleTimeString()}</small>${actions}`;
                         chatDiv.appendChild(div);
                         lastMessageId = msg.id;
                     }
