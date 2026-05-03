@@ -449,6 +449,7 @@
             <a href="{% url 'blog-home' %}">Home</a>
             {% if user.is_authenticated %}
                 <a href="{% url 'profile' user.username %}">Profile</a>
+                <!-- <a href="{% url 'chat_list' %}">Messages</a>  --> <!-- REMOVED to fix NoReverseMatch -->
                 <a href="{% url 'post-create' %}" class="btn-primary">Write story</a>
                 <form action="{% url 'logout' %}" method="post" style="margin:0">
                     {% csrf_token %}
@@ -471,9 +472,10 @@
         <div class="blog-grid">
             {% for post in posts %}
                 <article class="post-card">
-                    {% if post.image %}
-                        <img src="{{ post.image.url }}" alt="{{ post.title }}" class="post-image">
-                    {% endif %}
+                    <!-- WITH THIS ✅ -->
+                {% if post.image %}
+    <img src="{{ post.image.url }}" alt="{{ post.title }}" class="post-image" onerror="this.style.display='none'">
+{% endif %}
                     <div class="card-content">
                         {% if post.status == 'pending' and user == post.author %}
                             <div class="pending-badge">⏳ Pending approval – only visible to you</div>
@@ -492,15 +494,15 @@
 
                         <!-- Likes & Comments stats -->
                         <div class="post-stats">
-    <a href="{% url 'like_post' post.id %}" class="like-btn">
-        {% if post.id in liked_posts %}
-            ❤️ {{ post.total_likes }}
-        {% else %}
-            🤍 {{ post.total_likes }}
-        {% endif %}
-    </a>
-    <span class="stats-comment">💬 {{ post.comments.count }}</span>
-</div>
+                            <a href="{% url 'like_post' post.id %}" class="like-btn">
+                                {% if post.id in liked_posts %}
+                                    ❤️ {{ post.total_likes }}
+                                {% else %}
+                                    🤍 {{ post.total_likes }}
+                                {% endif %}
+                            </a>
+                            <span class="stats-comment">💬 {{ post.comments.count }}</span>
+                        </div>
                     </div>
                 </article>
             {% endfor %}

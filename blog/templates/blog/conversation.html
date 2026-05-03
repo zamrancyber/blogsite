@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat with {{ other_user.username }} | MyBlog</title>
+
+    <!-- Premium font pairing -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400..700&family=Playfair+Display:ital,wght@0,500..800;1,500..800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg: #0a0b0f;
+            --bg-secondary: #13161d;
+            --surface: #1a1d27;
+            --surface-hover: #222736;
+            --border: rgba(255, 255, 255, 0.06);
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --accent: #d4af37;
+            --accent-light: #f3d779;
+            --gradient: linear-gradient(135deg, #d4af37 0%, #b8962e 100%);
+            --radius: 24px;
+            --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text-primary);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            background-image:
+                radial-gradient(ellipse 80% 50% at 50% -10%, rgba(212, 175, 55, 0.08), transparent),
+                radial-gradient(ellipse 40% 70% at 90% 80%, rgba(139, 92, 246, 0.04), transparent);
+            background-attachment: fixed;
+        }
+
+        h1, h2, h3 {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-weight: 700;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+
+        /* Glass Navigation (same as all premium pages) */
+        .navbar {
+            background: rgba(10, 11, 15, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            padding: 0.75rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .nav-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .logo a {
+            font-size: 1.85rem;
+            font-weight: 800;
+            font-family: 'Playfair Display', serif;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        .logo a::before {
+            content: "✦";
+            font-size: 1.4rem;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .nav-links {
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .nav-links a,
+        .nav-links button {
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+            padding: 0.55rem 1.3rem;
+            border-radius: 100px;
+            transition: var(--transition);
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            color: var(--text-secondary);
+            white-space: nowrap;
+        }
+        .nav-links a:hover,
+        .nav-links button:hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.05);
+        }
+        .btn-primary {
+            background: var(--gradient) !important;
+            color: #0a0b0f !important;
+            font-weight: 600 !important;
+            box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(212, 175, 55, 0.4);
+            filter: brightness(1.05);
+        }
+        .btn-outline {
+            border: 1px solid rgba(255, 255, 255, 0.15) !important;
+            background: transparent !important;
+            color: var(--text-secondary) !important;
+        }
+        .btn-outline:hover {
+            background: rgba(255, 255, 255, 0.05) !important;
+            border-color: var(--accent) !important;
+            color: var(--accent) !important;
+        }
+
+        /* Chat container */
+        .chat-card {
+            background: var(--surface);
+            border-radius: var(--radius);
+            padding: 2rem;
+            margin: 2rem 0;
+            box-shadow: 0 20px 30px -10px rgba(0,0,0,0.4);
+            border: 1px solid var(--border);
+            backdrop-filter: blur(4px);
+        }
+        .chat-header {
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+        .chat-header h2 {
+            font-size: 1.8rem;
+            background: linear-gradient(to right, #fff, var(--accent-light));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .chat-header .user-tag {
+            background: var(--surface-hover);
+            padding: 0.25rem 0.8rem;
+            border-radius: 40px;
+            font-size: 0.85rem;
+            color: var(--accent-light);
+        }
+
+        /* Messages area */
+        .chat-messages {
+            background: var(--bg);
+            border-radius: 20px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--border);
+            min-height: 250px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .message-bubble {
+            margin-bottom: 10px;
+            padding: 0.6rem 1rem;
+            border-radius: 18px;
+            max-width: 70%;
+            font-size: 0.95rem;
+            line-height: 1.4;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        .message-bubble.sent {
+            background: #1e293b;
+            margin-left: auto;
+            text-align: right;
+            border-bottom-right-radius: 6px;
+            color: #e2e8f0;
+        }
+        .message-bubble.received {
+            background: #0f172a;
+            margin-right: auto;
+            border-bottom-left-radius: 6px;
+            color: #cbd5e1;
+        }
+        .message-bubble strong {
+            font-size: 0.8rem;
+            color: var(--accent-light);
+            display: block;
+            margin-bottom: 0.2rem;
+        }
+        .message-bubble small {
+            font-size: 0.7rem;
+            opacity: 0.7;
+        }
+        .empty-messages {
+            color: var(--text-secondary);
+            text-align: center;
+            padding: 2rem;
+        }
+
+        /* Form */
+        .chat-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .chat-form textarea {
+            width: 100%;
+            padding: 0.8rem 1.2rem;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: var(--bg);
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 0.95rem;
+            outline: none;
+            resize: vertical;
+            transition: var(--transition);
+        }
+        .chat-form textarea:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15);
+        }
+        .chat-form button {
+            align-self: flex-end;
+            background: var(--gradient);
+            color: #0a0b0f;
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+        }
+        .chat-form button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(212, 175, 55, 0.4);
+        }
+
+        .footer {
+            text-align: center;
+            border-top: 1px solid var(--border);
+            padding: 2.5rem;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            background: var(--bg-secondary);
+        }
+
+        /* Scrollbar */
+        .chat-messages::-webkit-scrollbar {
+            width: 6px;
+        }
+        .chat-messages::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .chat-messages::-webkit-scrollbar-thumb {
+            background: var(--surface-hover);
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="nav-inner">
+        <div class="logo"><a href="{% url 'blog-home' %}">MyBlog</a></div>
+        <div class="nav-links">
+            <a href="{% url 'blog-home' %}">Home</a>
+            {% if user.is_authenticated %}
+                <a href="{% url 'profile' user.username %}">Profile</a>
+                <a href="{% url 'post-create' %}" class="btn-primary">Write story</a>
+                <form action="{% url 'logout' %}" method="post" style="margin:0">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-outline">Sign out</button>
+                </form>
+            {% else %}
+                <a href="{% url 'login' %}" class="btn-outline">Sign in</a>
+            {% endif %}
+        </div>
+    </div>
+</nav>
+
+<main class="container">
+    <div class="chat-card">
+        <div class="chat-header">
+            <h2>Chat with {{ other_user.username }}</h2>
+            <span class="user-tag">@{{ other_user.username }}</span>
+        </div>
+
+        <div class="chat-messages">
+            {% for msg in messages %}
+                <div class="message-bubble {% if msg.sender == request.user %}sent{% else %}received{% endif %}">
+                    <strong>{{ msg.sender.username }}</strong>
+                    {{ msg.content }}
+                    <small style="float: right;">{{ msg.timestamp|date:"H:i" }}</small>
+                </div>
+            {% empty %}
+                <div class="empty-messages">
+                    <p>No messages yet. Say hello! 👋</p>
+                </div>
+            {% endfor %}
+        </div>
+
+        <form method="post" class="chat-form">
+            {% csrf_token %}
+            <textarea name="content" rows="3" placeholder="Type your message..."></textarea>
+            <button type="submit">Send message</button>
+        </form>
+    </div>
+</main>
+
+<footer class="footer">
+    <p>© 2026 MyBlog — built with Django & love</p>
+</footer>
+
+</body>
+</html>

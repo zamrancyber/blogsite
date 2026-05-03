@@ -5,7 +5,7 @@ from django.core.validators import MinLengthValidator
 from django.urls import reverse
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from cloudinary.models import CloudinaryField  # ✅ Import this
+from cloudinary.models import CloudinaryField
 
 
 class Post(models.Model):
@@ -19,15 +19,7 @@ class Post(models.Model):
     content = models.TextField()
     date_posted = models.DateTimeField(default=timezone.now)
     author = models.ForeignKey(User, on_delete=models.CASCADE)
-    
-    # ✅ FIXED: CloudinaryField instead of ImageField
-    image = CloudinaryField(
-        'image',
-        blank=True,
-        null=True,
-        folder='post_images',
-    )
-    
+    image = CloudinaryField('image', blank=True, null=True, folder='post_images')
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
 
     def __str__(self):
@@ -75,15 +67,7 @@ class Profile(models.Model):
     bio = models.TextField(max_length=500, blank=True, null=True)
     location = models.CharField(max_length=100, blank=True, null=True)
     gender = models.CharField(max_length=1, choices=GENDER_CHOICES, blank=True, default='')
-
-    # ✅ FIXED: CloudinaryField instead of ImageField
-    avatar = CloudinaryField(
-        'avatar',
-        blank=True,
-        null=True,
-        folder='avatars',
-    )
-
+    avatar = CloudinaryField('avatar', blank=True, null=True, folder='avatars')
     website = models.URLField(blank=True, null=True)
     twitter = models.CharField(max_length=100, blank=True, null=True)
     github = models.CharField(max_length=100, blank=True, null=True)
@@ -109,6 +93,32 @@ class Like(models.Model):
 
     def __str__(self):
         return f"{self.user.username} likes {self.post.title}"
+
+
+class Follow(models.Model):
+    follower = models.ForeignKey(User, on_delete=models.CASCADE, related_name='following')
+    followed = models.ForeignKey(User, on_delete=models.CASCADE, related_name='followers')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('follower', 'followed')
+
+    def __str__(self):
+        return f"{self.follower.username} follows {self.followed.username}"
+
+
+class Message(models.Model):
+    sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_messages')
+    receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name='received_messages')
+    content = models.TextField(max_length=1000)
+    timestamp = models.DateTimeField(auto_now_add=True)
+    is_read = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ['timestamp']
+
+    def __str__(self):
+        return f"From {self.sender.username} to {self.receiver.username} at {self.timestamp}"
 
 
 @receiver(post_save, sender=User)

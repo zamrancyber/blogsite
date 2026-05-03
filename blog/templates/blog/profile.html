@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ profile_user.username }} | Profile</title>
+    <title>{{ profile_user.username }} | Mind Journal</title>
 
     <!-- Premium font pairing -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -202,21 +202,39 @@
             color: #fff;
             text-decoration: underline;
         }
-        .btn-edit {
-            display: inline-block;
+        .action-buttons {
             margin-top: 1.5rem;
-            background: var(--gradient);
-            color: #0a0b0f;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        .btn-icon {
+            display: inline-block;
             padding: 0.55rem 1.6rem;
             border-radius: 40px;
             font-weight: 600;
             text-decoration: none;
-            box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
             transition: var(--transition);
+        }
+        .btn-edit {
+            background: var(--gradient);
+            color: #0a0b0f;
+            box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
         }
         .btn-edit:hover {
             transform: translateY(-2px);
             box-shadow: 0 8px 20px rgba(212, 175, 55, 0.4);
+        }
+        .follow-stats {
+            margin-top: 1rem;
+            font-size: 0.9rem;
+        }
+        .follow-stats a {
+            color: var(--accent-light);
+            text-decoration: none;
+        }
+        .follow-stats a:hover {
+            text-decoration: underline;
         }
 
         /* Posts list */
@@ -288,6 +306,9 @@
             .profile-info h1 {
                 font-size: 1.8rem;
             }
+            .action-buttons {
+                justify-content: center;
+            }
         }
     </style>
 </head>
@@ -338,9 +359,32 @@
                 {% if profile.twitter %}<a href="https://twitter.com/{{ profile.twitter }}" target="_blank">🐦 Twitter</a>{% endif %}
                 {% if profile.github %}<a href="https://github.com/{{ profile.github }}" target="_blank">💻 GitHub</a>{% endif %}
             </div>
-            {% if user == profile_user %}
-                <a href="{% url 'edit_profile' %}" class="btn-edit">Edit Profile</a>
-            {% endif %}
+
+            <!-- Follow / Unfollow and Message buttons (only for other users) -->
+            <div class="action-buttons">
+                {% if user.is_authenticated and user != profile_user %}
+                    {% if profile_user in request.user.following.all %}
+                        <a href="{% url 'unfollow_user' profile_user.username %}" class="btn-outline btn-icon">Unfollow</a>
+                    {% else %}
+                        <a href="{% url 'follow_user' profile_user.username %}" class="btn-primary btn-icon">Follow</a>
+                    {% endif %}
+                    <a href="{% url 'chat_room' profile_user.username %}" class="btn-outline btn-icon">💬 Message</a>
+                {% endif %}
+                <!-- Own profile edit button -->
+                {% if user == profile_user %}
+                    <a href="{% url 'edit_profile' %}" class="btn-edit btn-icon">Edit Profile</a>
+                {% endif %}
+            </div>
+
+            <!-- Followers / Following stats -->
+            <div class="follow-stats">
+                <a href="{% url 'followers_list' profile_user.username %}">
+                    {{ profile_user.followers.count }} Followers
+                </a> &nbsp;|&nbsp;
+                <a href="{% url 'following_list' profile_user.username %}">
+                    {{ profile_user.following.count }} Following
+                </a>
+            </div>
         </div>
     </div>
 
