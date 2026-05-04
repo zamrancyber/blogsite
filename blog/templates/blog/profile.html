@@ -225,6 +225,33 @@
             transform: translateY(-2px);
             box-shadow: 0 8px 20px rgba(212, 175, 55, 0.4);
         }
+        /* Follow / Unfollow styles */
+        .btn-follow {
+            display: inline-block;
+            padding: 0.55rem 1.8rem;
+            border-radius: 40px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: var(--transition);
+            cursor: pointer;
+            border: none;
+            font-family: inherit;
+            font-size: 0.95rem;
+            background: var(--gradient);
+            color: #0a0b0f;
+            box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+        }
+        .btn-follow.unfollow {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: var(--text-secondary);
+            box-shadow: none;
+        }
+        .btn-follow.unfollow:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: var(--accent);
+            color: var(--text-primary);
+        }
         .follow-stats {
             margin-top: 1rem;
             font-size: 0.9rem;
@@ -320,7 +347,8 @@
         <div class="nav-links">
             <a href="{% url 'blog-home' %}">Home</a>
             {% if user.is_authenticated %}
-                <a href="{% url 'edit_profile' %}" class="btn-outline">✏️ Edit Profile</a>
+                <a href="{% url 'profile' user.username %}">Profile</a>
+                <a href="{% url 'post-create' %}" class="btn-primary">Write story</a>
                 <form action="{% url 'logout' %}" method="post" style="display:inline">
                     {% csrf_token %}
                     <button type="submit" class="btn-outline">Logout</button>
@@ -360,17 +388,18 @@
                 {% if profile.github %}<a href="https://github.com/{{ profile.github }}" target="_blank">💻 GitHub</a>{% endif %}
             </div>
 
-            <!-- Follow / Unfollow and Message buttons (only for other users) -->
+            <!-- Action Buttons: Follow/Unfollow + Message + Edit (own profile) -->
             <div class="action-buttons">
                 {% if user.is_authenticated and user != profile_user %}
-                    {% if profile_user in request.user.following.all %}
-                        <a href="{% url 'unfollow_user' profile_user.username %}" class="btn-outline btn-icon">Unfollow</a>
-                    {% else %}
-                        <a href="{% url 'follow_user' profile_user.username %}" class="btn-primary btn-icon">Follow</a>
-                    {% endif %}
+                    <!-- Follow / Unfollow AJAX button -->
+                    <button id="follow-btn"
+                            class="btn-follow {% if is_following %}unfollow{% endif %}"
+                            data-username="{{ profile_user.username }}"
+                            data-following="{% if is_following %}true{% else %}false{% endif %}">
+                        {% if is_following %}Unfollow{% else %}Follow{% endif %}
+                    </button>
                     <a href="{% url 'chat_room' profile_user.username %}" class="btn-outline btn-icon">💬 Message</a>
                 {% endif %}
-                <!-- Own profile edit button -->
                 {% if user == profile_user %}
                     <a href="{% url 'edit_profile' %}" class="btn-edit btn-icon">Edit Profile</a>
                 {% endif %}
@@ -405,6 +434,44 @@
 <footer class="footer">
     <p>© 2026 Mind Journal — Where ideas find a home</p>
 </footer>
+
+<!-- AJAX Follow / Unfollow -->
+<script>
+    const followBtn = document.getElementById('follow-btn');
+    if (followBtn) {
+        followBtn.addEventListener('click', function() {
+            const username = this.dataset.username;
+            const isFollowing = this.dataset.following === 'true';
+            const action = isFollowing ? 'unfollow' : 'follow';
+
+            fetch(`/profile/${username}/follow/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ action: action })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'ok') {
+                    if (isFollowing) {
+                        // Switch to Follow
+                        this.dataset.following = 'false';
+                        this.textContent = 'Follow';
+                        this.classList.remove('unfollow');
+                    } else {
+                        // Switch to Unfollow
+                        this.dataset.following = 'true';
+                        this.textContent = 'Unfollow';
+                        this.classList.add('unfollow');
+                    }
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        });
+    }
+</script>
 
 </body>
 </html>

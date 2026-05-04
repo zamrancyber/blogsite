@@ -12,7 +12,7 @@ from django.db import connections
 from django.db.utils import OperationalError
 from django.db.models import Q
 from .forms import ProfileForm, UserForm   # we'll create UserForm
-
+from .models import User, Follow
 from .models import Post, Comment, Profile, Like, Follow, Message
 from .forms import CommentForm, ProfileForm
 
@@ -162,14 +162,21 @@ def profile_view(request, username):
     profile_user = get_object_or_404(User, username=username)
     profile = profile_user.profile
     posts = profile_user.post_set.filter(status='published').order_by('-date_posted')
+
+    # ---------- NEW: check if the current user is following this profile ----------
+    is_following = False
+    if request.user.is_authenticated and request.user != profile_user:
+        is_following = Follow.objects.filter(follower=request.user, followed=profile_user).exists()
+    # -------------------------------------------------------------------------
+
     context = {
         'profile_user': profile_user,
         'profile': profile,
         'posts': posts,
+        'is_following': is_following,          # <-- add to context
     }
     return render(request, 'blog/profile.html', context)
 
-from .forms import ProfileForm, UserForm   # we'll create UserForm
 
 @login_required
 def edit_profile(request):
@@ -294,3 +301,17 @@ def chat_list(request):
         Q(received_messages__sender=request.user)
     ).distinct().exclude(id=request.user.id)
     return render(request, 'blog/chat_list.html', {'users': users})
+@login_required
+def follow_unfollow(request, username):
+    target_user = get_object_or_404(User, username=username)
+    if request.user == target_user:
+        return JsonResponse({'status': 'error', 'message': "Can't follow yourself"}, status=400)
+
+    follow_obj = Follow.objects.filter(follower=request.user, followed=target_user).first()
+    if follow_obj:
+        follow_obj.delete()
+        status = 'unfollowed'
+    else:
+        Follow.objects.create(follower=request.user, followed=target_user)
+        status = 'followed'
+    return JsonResponse({'status': 'ok', 'action': status})
